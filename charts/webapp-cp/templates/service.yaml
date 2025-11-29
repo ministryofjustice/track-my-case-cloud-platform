@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.WebApp.Name }}
+spec:
+  sessionAffinity: ClientIP
+  ports:
+    - port: {{ .Values.Ingress.Port }}
+      targetPort: {{ .Values.AuthProxy.containerPort }}
+      protocol: TCP
+  selector:
+    app: {{ .Values.WebApp.Name }}

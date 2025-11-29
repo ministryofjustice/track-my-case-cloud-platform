@@ -1,0 +1,39 @@
+{{ if .Values.Cron.schedule }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.WebApp.Name }}-cron
+rules:
+  - apiGroups:
+    - apps
+    resources:
+      - deployments
+    verbs:
+      - list
+      - patch
+      - get
+      - update
+      - watch
+  - apiGroups:
+    - extensions
+    resources:
+      - deployments
+    verbs:
+      - list
+      - patch
+      - get
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.WebApp.Name }}-cron
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.WebApp.Name }}-cron
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.WebApp.Name }}-cron
+{{ end }}

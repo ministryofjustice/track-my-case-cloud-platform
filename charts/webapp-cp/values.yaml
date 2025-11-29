@@ -1,0 +1,103 @@
+ReplicaCount: 1
+GithubRepo: ""
+GithubTeam: ""
+Namespace: ""
+Alerts:
+  enabled: false
+  severity: "data-platform-application-migration-alerts"
+  cpuUsage: "60"
+  memoryUsage: "80"
+  pvcUsage: "90"
+AuthProxy:
+  containerPort: 3000
+  Env:
+    AuthenticationRequired: "true"
+    Auth0Passwordless: "false"
+    IPRanges: ""
+    Auth0Domain: ""
+    Username: ""
+    SentryEnv: "local"
+    Auth0TokenAlg: ""
+  HealthCheck:
+    readinessProbe:
+      path: "/healthz"
+      initialDelaySeconds: 5
+      periodSeconds: 2
+    livenessProbe:
+      path: "/healthz"
+      initialDelaySeconds: 10
+      periodSeconds: 2
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "10m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+  Image:
+    Repository: ""
+    Tag: ""
+    PullPolicy: "Always"
+WebApp:
+  Name: ""
+  BaseHost: "apps.live.cloud-platform.service.justice.gov.uk"
+  containerPort: 9999
+  HealthCheck:
+    readinessProbe:
+      path: "/?healthz"
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 60
+    livenessProbe:
+      path: "/?healthz"
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 60
+  AlternativeHealthCheck:
+    enabled: false
+    port: 7999
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 60
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 60
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "125m"
+    limits:
+      memory: "1Gi"
+      cpu: "300m"
+  Image:
+    Repository: ""
+    Tag: ""
+    PullPolicy: "IfNotPresent"
+Secrets:
+  Auth0:
+    ClientSecret: ""
+    ClientId: ""
+  WebApp:
+    Parameters: {}
+Ingress:
+  Port: 80
+  ModSec:
+    Enabled: false
+  Headers:
+    SameOrigin: false
+  ExtraAnnotations: {}
+ServiceAccount:
+  RoleARN: ""
+Cron:
+  schedule: ""
+  image:
+    repository: "ghcr.io/ministryofjustice/analytical-platform-kubectl"
+    tag: "1.4.0"
+  securityContext:
+    runAsUser: 10000
