@@ -34,10 +34,31 @@ spec:
     - host: {{ template "stripPrefixSuffix" . }}
       http:
         paths:
-          - pathType: ImplementationSpecific
-            path: "/"
-            backend:
-              service:
-                name: {{ .Values.WebApp.Name }}
-                port:
-                  number: {{ .Values.Ingress.Port }}
+        {{- if kindIs "slice" .Values.Ingress.Paths }}
+          {{- range .Values.Ingress.Paths }}
+            - pathType: ImplementationSpecific
+              path: {{ . | quote }}
+              backend:
+                service:
+                  name: {{ $.Values.WebApp.Name }}
+                  port:
+                    number: {{ $.Values.Ingress.Port }}
+          {{- end }}
+        {{- else if .Values.Ingress.Path }}
+            - pathType: ImplementationSpecific
+              path: {{ .Values.Ingress.Path | quote }}
+              backend:
+                service:
+                  name: {{ $.Values.WebApp.Name }}
+                  port:
+                    number: {{ $.Values.Ingress.Port }}
+        {{- else }}
+            - pathType: ImplementationSpecific
+              path: "/"
+              backend:
+                service:
+                  name: {{ $.Values.WebApp.Name }}
+                  port:
+                    number: {{ $.Values.Ingress.Port }}
+        {{- end }}
+ 
