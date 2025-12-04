@@ -87,6 +87,8 @@ Secrets:
     Parameters: {}
 Ingress:
   Port: 80
+  Paths:
+    - /
   ModSec:
     Enabled: false
   Headers:
