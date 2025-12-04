@@ -89,7 +89,6 @@ Ingress:
   Port: 80
   Paths:
     - /
-    - /api
   ModSec:
     Enabled: false
   Headers:
