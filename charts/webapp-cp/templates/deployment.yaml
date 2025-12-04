@@ -1,0 +1,156 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.WebApp.Name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    repo: "{{ .Values.GithubRepo }}"
+    app: {{ .Values.WebApp.Name }}
+    appVersion: {{ .Chart.AppVersion }}
+    host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.WebApp.Name }}
+  replicas: {{ .Values.ReplicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.WebApp.Name }}
+        host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "." }}
+    spec:
+      serviceAccountName: {{ .Values.WebApp.Name }}-sa
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: "RuntimeDefault"
+      containers:
+        - name: auth-proxy
+          image: "{{ .Values.AuthProxy.Image.Repository }}:{{ .Values.AuthProxy.Image.Tag }}"
+          imagePullPolicy: {{ .Values.AuthProxy.Image.PullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
+          ports:
+            - name: proxy
+              containerPort: {{ .Values.AuthProxy.containerPort }}
+          env:
+            - name: AUTH0_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.WebApp.Name }}-auth0"
+                  key: client_secret
+            - name: AUTH0_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.WebApp.Name }}-auth0"
+                  key: client_id
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.WebApp.Name }}-auth0"
+                  key: cookie_secret
+            - name: USER
+              value: {{ .Values.AuthProxy.Env.Username }}
+            - name: AUTH0_DOMAIN
+              value: {{ .Values.AuthProxy.Env.Auth0Domain }}
+            - name: AUTH0_CALLBACK_URL
+              value: "https://{{ template "stripPrefixSuffix" . }}/callback"
+            - name: TARGET_URL
+              value: "http://localhost:{{ .Values.WebApp.containerPort }}/"
+            - name: AUTHENTICATION_REQUIRED
+              value: {{ .Values.AuthProxy.Env.AuthenticationRequired | quote }}
+            - name: IP_RANGES
+              value: {{ .Values.AuthProxy.Env.IPRanges }}
+            - name: AUTH0_PASSWORDLESS
+              value: {{ .Values.AuthProxy.Env.Auth0Passwordless | quote }}
+            - name: PORT
+              value: {{ .Values.AuthProxy.containerPort | quote }}
+            - name: SENTRY_ENV
+              value: {{ .Values.AuthProxy.Env.SentryEnv }}
+            - name: AUTH0_TOKEN_ALG
+              value: {{ .Values.AuthProxy.Env.Auth0TokenAlg }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.AuthProxy.HealthCheck.readinessProbe.path }}
+              port: proxy
+            initialDelaySeconds: {{ .Values.AuthProxy.HealthCheck.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.AuthProxy.HealthCheck.readinessProbe.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.AuthProxy.HealthCheck.livenessProbe.path }}
+              port: proxy
+            initialDelaySeconds: {{ .Values.AuthProxy.HealthCheck.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.AuthProxy.HealthCheck.livenessProbe.periodSeconds }}
+          resources:
+            requests:
+              memory: {{ .Values.AuthProxy.resources.requests.memory }}
+              cpu: {{ .Values.AuthProxy.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.AuthProxy.resources.limits.memory }}
+              cpu: {{ .Values.AuthProxy.resources.limits.cpu }}
+
+        - name: webapp
+          image: "{{ .Values.WebApp.Image.Repository }}:{{ .Values.WebApp.Image.Tag }}"
+          imagePullPolicy: {{ .Values.WebApp.Image.PullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
+          envFrom:
+            - secretRef:
+                name: "{{ .Values.WebApp.Name }}-parameters"
+          ports:
+            - name: webapp
+              containerPort: {{ .Values.WebApp.containerPort }}
+          livenessProbe:
+            {{- if .Values.WebApp.AlternativeHealthCheck.enabled }}
+            failureThreshold: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.periodSeconds }}
+            successThreshold: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.successThreshold }}
+            exec:
+              command:
+              - bash
+              - -c
+              - "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/{{ .Values.WebApp.AlternativeHealthCheck.port }}'"
+            timeoutSeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.timeoutSeconds }}
+            {{- else }}
+            httpGet:
+              path: {{ .Values.WebApp.HealthCheck.livenessProbe.path }}
+              port: webapp
+            initialDelaySeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.timeoutSeconds }}
+            {{- end }}
+
+          readinessProbe:
+            {{- if .Values.WebApp.AlternativeHealthCheck.enabled }}
+            failureThreshold: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.successThreshold }}
+            exec:
+              command:
+              - bash
+              - -c
+              - "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/{{ .Values.WebApp.AlternativeHealthCheck.port }}'"
+            timeoutSeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.timeoutSeconds }}
+            {{- else }}
+            httpGet:
+              path: {{ .Values.WebApp.HealthCheck.readinessProbe.path }}
+              port: webapp
+            initialDelaySeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.timeoutSeconds }}
+            {{- end }}
+          resources:
+            requests:
+              memory: {{ .Values.WebApp.resources.requests.memory }}
+              cpu: {{ .Values.WebApp.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.WebApp.resources.limits.memory }}
+              cpu: {{ .Values.WebApp.resources.limits.cpu }}

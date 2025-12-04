@@ -1,0 +1,22 @@
+{{- $name := include "stripPrefixSuffixFromName" . -}}
+{{- if .Values.Alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Namespace }}-alerting-ingress
+  labels:
+    role: alert-rules
+    prometheus: cloud-platform
+spec:
+  groups:
+    - name: application-rules
+      rules:
+        - alert: 5xxingress
+          annotations:
+            message: :fire:Service '{{"{{" }} $labels.host {{"}}"}}' is serving 5xx responses ':fire:'
+          expr: avg by (host, path, exported_namespace, exported_service) (rate(nginx_ingress_controller_requests{exported_namespace=~"{{ .Release.Namespace }}",status=~"5.*"}[1m]) > 0)
+          for: 1m
+          labels:
+            severity: {{ default $name .Values.Alerts.severity }}
+{{- end }}
+

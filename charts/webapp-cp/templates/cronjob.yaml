@@ -1,0 +1,33 @@
+{{ if .Values.Cron.schedule }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restart-app
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 4
+      activeDeadlineSeconds: 100
+      template:
+        spec:
+          containers:
+          - args:
+            - kubectl
+            - rollout
+            - restart
+            - deployment
+            - {{ .Values.WebApp.Name }}
+            image: {{ .Values.Cron.image.repository }}:{{ .Values.Cron.image.tag }}
+            name: kubectl
+            resources: {}
+            securityContext:
+              runAsUser: {{ .Values.Cron.securityContext.runAsUser }}
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          serviceAccountName: {{ .Values.WebApp.Name }}-cron
+  schedule: "{{ .Values.Cron.schedule }}"
+  suspend: false
+{{ end }}
