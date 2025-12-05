@@ -39,7 +39,7 @@ AuthProxy:
     Tag: ""
     PullPolicy: "Always"
 WebApp:
-  Name: "stg-track-my-case-service-staging"
+  Name: ""
   BaseHost: "apps.live.cloud-platform.service.justice.gov.uk"
   containerPort: 9999
   HealthCheck:
