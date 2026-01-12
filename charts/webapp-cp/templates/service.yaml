@@ -6,7 +6,7 @@ spec:
   sessionAffinity: ClientIP
   ports:
     - port: {{ .Values.Ingress.Port }}
-      targetPort: {{ .Values.AuthProxy.containerPort }}
+      targetPort: {{ .Values.WebApp.containerPort }}
       protocol: TCP
   selector:
     app: {{ .Values.WebApp.Name }}
