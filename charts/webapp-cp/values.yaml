@@ -50,9 +50,6 @@ WebApp:
     Tag: ""
     PullPolicy: "IfNotPresent"
 Secrets:
-  Auth0:
-    ClientSecret: ""
-    ClientId: ""
   WebApp:
     Parameters: {}
 Ingress:
@@ -74,3 +71,6 @@ Cron:
     tag: "1.4.0"
   securityContext:
     runAsUser: 10000
+Networkpolicy:
+  Ingress: ""
+  Egress: ""
