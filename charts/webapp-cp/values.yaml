@@ -50,6 +50,9 @@ WebApp:
     Tag: ""
     PullPolicy: "IfNotPresent"
 Secrets:
+  Auth0:
+    ClientSecret: ""
+    ClientId: ""
   WebApp:
     Parameters: {}
 Ingress:
