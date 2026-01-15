@@ -1,0 +1,30 @@
+{{- if or .Values.Networkpolicy.Ingress .Values.Networkpolicy.Egress }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-tmc-rules
+  namespace: "{{ .Values.Namespace }}"
+spec:
+  podSelector: {}
+{{- if .Values.Networkpolicy.Ingress }}
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          component: "{{ .Values.Networkpolicy.Ingress }}"
+{{- end }}
+{{- if .Values.Networkpolicy.Egress }}
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            component: "{{ .Values.Networkpolicy.Egress }}"
+{{- end }}
+  policyTypes:
+{{- if .Values.Networkpolicy.Ingress }}
+  - Ingress
+{{- end }}
+{{- if .Values.Networkpolicy.Egress }}
+  - Egress
+{{- end }}
+{{- end }}
