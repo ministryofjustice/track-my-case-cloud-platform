@@ -5,8 +5,9 @@ metadata:
 spec:
   sessionAffinity: ClientIP
   ports:
-    - port: {{ .Values.Ingress.Port }}
-      targetPort: {{ .Values.WebApp.containerPort }}
-      protocol: TCP
+  - name: http
+    port: {{ .Values.Ingress.Port }}
+    protocol: TCP
+    targetPort: {{ .Values.WebApp.containerPort }}
   selector:
     app: {{ .Values.WebApp.Name }}
