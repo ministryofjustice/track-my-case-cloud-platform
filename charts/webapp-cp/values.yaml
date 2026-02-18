@@ -56,7 +56,7 @@ Secrets:
   WebApp:
     Parameters: {}
 Ingress:
-  Enabled: true
+  Enabled: false
   Port: 80
   Paths:
     - /
