@@ -3,9 +3,30 @@
 {{- end -}}
 
 {{- define "stripPrefixSuffix" -}}
-{{ .Values.WebApp.Name | replace "data-platform-app-" "" | replace "-prod" "" }}.{{ .Values.WebApp.BaseHost }}
+{{- $name := .Values.WebApp.Name -}}
+
+{{- if hasPrefix "track-my-case-" $name -}}
+  {{- $name = printf "track-a-case-%s" (trimPrefix "track-my-case-" $name) -}}
 {{- end -}}
 
+{{- if hasSuffix "-prod" $name -}}
+  {{- $name = trimSuffix "-prod" $name -}}
+{{- end -}}
+
+{{- printf "%s.%s" $name .Values.WebApp.BaseHost -}}
+{{- end -}}
+
+
 {{- define "stripPrefixSuffixFromName" -}}
-{{ .Values.WebApp.Name | replace "data-platform-app-" "" | replace "-prod" "" }}
+{{- $name := .Values.WebApp.Name -}}
+
+{{- if hasPrefix "track-my-case-" $name -}}
+  {{- $name = printf "track-a-case-%s" (trimPrefix "track-my-case-" $name) -}}
+{{- end -}}
+
+{{- if hasSuffix "-prod" $name -}}
+  {{- $name = trimSuffix "-prod" $name -}}
+{{- end -}}
+
+{{- printf "%s" $name  -}}
 {{- end -}}
