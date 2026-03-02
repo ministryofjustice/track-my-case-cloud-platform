@@ -2,11 +2,11 @@ kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
   name: allow-prometheus-scraping
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.Namespace }}
 spec:
   podSelector:
     matchLabels:
-      app: {{ .Values.serviceName }}
+      app: {{ .Values.WebApp.Name }}
   policyTypes:
   - Ingress
   ingress:

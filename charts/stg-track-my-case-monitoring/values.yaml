@@ -1,11 +1,6 @@
 serviceName: ""
 namespace: ""
 
-servicePort: http
-
-monitoring:
-  interval: 15s
-
 metrics:
   enabled: true
   actuator_endpoint: prometheus
