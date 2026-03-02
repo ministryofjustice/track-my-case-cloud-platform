@@ -1,0 +1,17 @@
+serviceName: ""
+namespace: ""
+
+servicePort: http
+
+monitoring:
+  interval: 15s
+
+metrics:
+  enabled: true
+  actuator_endpoint: prometheus
+  grafana_dashboard:
+    enabled: true
+    name: Track a case service
+
+alertLabels:
+  severity: ""

@@ -1,0 +1,139 @@
+name: Deploy Backend Monitoring (stg-track-my-case-service)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/stg-track-my-case-monitoring/**'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  deploy-dev:
+    name: Deploy monitoring — dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the cluster
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+          KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER }}
+        run: |
+          echo "${{ secrets.KUBE_CERT }}" > ca.crt
+          kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
+          kubectl config set-credentials deploy-user --token=${{ secrets.KUBE_TOKEN }}
+          kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${{ secrets.KUBE_NAMESPACE }}
+          kubectl config use-context ${KUBE_CLUSTER}
+
+      - name: Deploy monitoring Helm chart — dev
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+        run: |
+          helm upgrade --install stg-track-my-case-monitoring ./charts/stg-track-my-case-monitoring \
+            -f ./charts/stg-track-my-case-monitoring/values-dev.yaml \
+            --namespace $KUBE_NAMESPACE \
+            --wait
+
+  deploy-test:
+    name: Deploy monitoring — test
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the cluster
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+          KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER }}
+        run: |
+          echo "${{ secrets.KUBE_CERT }}" > ca.crt
+          kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
+          kubectl config set-credentials deploy-user --token=${{ secrets.KUBE_TOKEN }}
+          kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${{ secrets.KUBE_NAMESPACE }}
+          kubectl config use-context ${KUBE_CLUSTER}
+
+      - name: Deploy monitoring Helm chart — test
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+        run: |
+          helm upgrade --install stg-track-my-case-monitoring ./charts/stg-track-my-case-monitoring \
+            -f ./charts/stg-track-my-case-monitoring/values-test.yaml \
+            --namespace $KUBE_NAMESPACE \
+            --wait
+
+  deploy-preprod:
+    name: Deploy monitoring — preprod
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: preprod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the cluster
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+          KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER }}
+        run: |
+          echo "${{ secrets.KUBE_CERT }}" > ca.crt
+          kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
+          kubectl config set-credentials deploy-user --token=${{ secrets.KUBE_TOKEN }}
+          kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${{ secrets.KUBE_NAMESPACE }}
+          kubectl config use-context ${KUBE_CLUSTER}
+
+      - name: Deploy monitoring Helm chart — preprod
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+        run: |
+          helm upgrade --install stg-track-my-case-monitoring ./charts/stg-track-my-case-monitoring \
+            -f ./charts/stg-track-my-case-monitoring/values-preprod.yaml \
+            --namespace $KUBE_NAMESPACE \
+            --wait
+
+  deploy-prod:
+    name: Deploy monitoring — prod
+    needs: deploy-preprod
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the cluster
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+          KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER }}
+        run: |
+          echo "${{ secrets.KUBE_CERT }}" > ca.crt
+          kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
+          kubectl config set-credentials deploy-user --token=${{ secrets.KUBE_TOKEN }}
+          kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${{ secrets.KUBE_NAMESPACE }}
+          kubectl config use-context ${KUBE_CLUSTER}
+
+      - name: Deploy monitoring Helm chart — prod
+        env:
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+        run: |
+          helm upgrade --install stg-track-my-case-monitoring ./charts/stg-track-my-case-monitoring \
+            -f ./charts/stg-track-my-case-monitoring/values-prod.yaml \
+            --namespace $KUBE_NAMESPACE \
+            --wait

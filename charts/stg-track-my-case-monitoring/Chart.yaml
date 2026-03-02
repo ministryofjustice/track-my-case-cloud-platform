@@ -1,0 +1,4 @@
+apiVersion: v2
+name: stg-track-my-case-monitoring
+version: 0.1.0
+description: Monitoring resources (ServiceMonitor, PrometheusRule, GrafanaDashboard, NetworkPolicy) for stg-track-my-case-service
