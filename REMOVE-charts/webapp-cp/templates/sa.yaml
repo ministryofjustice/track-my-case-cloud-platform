@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ .Values.WebApp.Name }}-sa"
+  annotations:
+    eks.amazonaws.com/role-arn: "{{ .Values.ServiceAccount.RoleARN }}"
+---
+{{ if .Values.Cron.schedule }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ .Values.WebApp.Name }}-cron"
+{{ end }}

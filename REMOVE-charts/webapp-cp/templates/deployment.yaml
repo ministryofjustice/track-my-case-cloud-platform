@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.WebApp.Name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    repo: "{{ .Values.GithubRepo }}"
+    app: {{ .Values.WebApp.Name }}
+    appVersion: {{ .Chart.AppVersion }}
+    host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.WebApp.Name }}
+  replicas: {{ .Values.ReplicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.WebApp.Name }}
+        host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "." }}
+    spec:
+      serviceAccountName: {{ .Values.WebApp.Name }}-sa
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: "RuntimeDefault"
+      containers:
+      - name: webapp
+        image: "{{ .Values.WebApp.Image.Repository }}:{{ .Values.WebApp.Image.Tag }}"
+        imagePullPolicy: {{ .Values.WebApp.Image.PullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - "ALL"
+        envFrom:
+          - secretRef:
+              name: "{{ .Values.WebApp.Name }}-parameters"
+        ports:
+          - name: webapp
+            containerPort: {{ .Values.WebApp.containerPort }}
+        livenessProbe:
+          {{- if .Values.WebApp.AlternativeHealthCheck.enabled }}
+          failureThreshold: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.failureThreshold }}
+          initialDelaySeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.periodSeconds }}
+          successThreshold: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.successThreshold }}
+          exec:
+            command:
+            - bash
+            - -c
+            - "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/{{ .Values.WebApp.AlternativeHealthCheck.port }}'"
+          timeoutSeconds: {{ .Values.WebApp.AlternativeHealthCheck.livenessProbe.timeoutSeconds }}
+          {{- else }}
+          httpGet:
+            path: {{ .Values.WebApp.HealthCheck.livenessProbe.path }}
+            port: webapp
+          initialDelaySeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.WebApp.HealthCheck.livenessProbe.timeoutSeconds }}
+          {{- end }}
+
+        readinessProbe:
+          {{- if .Values.WebApp.AlternativeHealthCheck.enabled }}
+          failureThreshold: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.failureThreshold }}
+          initialDelaySeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.successThreshold }}
+          exec:
+            command:
+            - bash
+            - -c
+            - "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/{{ .Values.WebApp.AlternativeHealthCheck.port }}'"
+          timeoutSeconds: {{ .Values.WebApp.AlternativeHealthCheck.readinessProbe.timeoutSeconds }}
+          {{- else }}
+          httpGet:
+            path: {{ .Values.WebApp.HealthCheck.readinessProbe.path }}
+            port: webapp
+          initialDelaySeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.WebApp.HealthCheck.readinessProbe.timeoutSeconds }}
+          {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.WebApp.resources.requests.memory }}
+            cpu: {{ .Values.WebApp.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.WebApp.resources.limits.memory }}
+            cpu: {{ .Values.WebApp.resources.limits.cpu }}
