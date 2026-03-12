@@ -1,0 +1,5 @@
+serviceName: track-my-case-dev
+namespace: track-my-case-dev
+
+alertLabels:
+  severity: victims-pathfinder-dev

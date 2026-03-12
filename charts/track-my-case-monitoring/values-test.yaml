@@ -1,0 +1,5 @@
+serviceName: track-my-case-test
+namespace: track-my-case-test
+
+alertLabels:
+  severity: victims-pathfinder-test
