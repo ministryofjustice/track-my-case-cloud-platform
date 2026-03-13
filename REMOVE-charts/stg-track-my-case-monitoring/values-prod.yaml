@@ -1,0 +1,5 @@
+serviceName: stg-track-my-case-service-prod
+namespace: stg-track-my-case-service-prod
+
+alertLabels:
+  severity: stg-track-my-case-service-prod
