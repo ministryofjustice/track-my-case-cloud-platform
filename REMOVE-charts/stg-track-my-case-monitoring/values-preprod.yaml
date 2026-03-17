@@ -1,5 +1,0 @@
-serviceName: stg-track-my-case-service-preprod
-namespace: stg-track-my-case-service-preprod
-
-alertLabels:
-  severity: victims-pathfinder-preprod

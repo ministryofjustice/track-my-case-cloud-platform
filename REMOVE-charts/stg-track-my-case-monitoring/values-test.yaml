@@ -1,5 +1,0 @@
-serviceName: stg-track-my-case-service-test
-namespace: stg-track-my-case-service-test
-
-alertLabels:
-  severity: victims-pathfinder-test
