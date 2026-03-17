@@ -1,0 +1,12 @@
+serviceName: ""
+namespace: ""
+
+metrics:
+  enabled: true
+  actuator_endpoint: prometheus
+  grafana_dashboard:
+    enabled: true
+    name: Track a case UI
+
+alertLabels:
+  severity: ""

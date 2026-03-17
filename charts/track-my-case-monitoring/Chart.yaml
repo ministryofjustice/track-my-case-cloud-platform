@@ -1,0 +1,4 @@
+apiVersion: v2
+name: track-my-case-monitoring
+version: 0.1.0
+description: Monitoring resources (PrometheusRule, GrafanaDashboard) for track-my-case frontend service

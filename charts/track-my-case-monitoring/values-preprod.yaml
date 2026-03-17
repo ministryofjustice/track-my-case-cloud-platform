@@ -1,0 +1,5 @@
+serviceName: track-my-case-preprod
+namespace: track-my-case-preprod
+
+alertLabels:
+  severity: victims-pathfinder-preprod

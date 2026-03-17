@@ -1,0 +1,5 @@
+serviceName: track-my-case-prod
+namespace: track-my-case-prod
+
+alertLabels:
+  severity: track-my-case-prod

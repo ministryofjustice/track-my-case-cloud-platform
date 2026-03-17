@@ -1,0 +1,5 @@
+serviceName: track-my-case-sit
+namespace: track-my-case-sit
+
+alertLabels:
+  severity: victims-pathfinder-sit
