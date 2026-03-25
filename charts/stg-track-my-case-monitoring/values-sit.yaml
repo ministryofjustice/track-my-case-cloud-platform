@@ -2,4 +2,4 @@ serviceName: stg-track-my-case-service-sit
 namespace: stg-track-my-case-service-sit
 
 alertLabels:
-  severity: victims-pathfinder-sit
+  severity: stg-track-my-case-service-sit
