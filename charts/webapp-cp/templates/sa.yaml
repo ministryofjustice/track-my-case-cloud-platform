@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: "{{ .Values.WebApp.Name }}-irsa"
+  name: "{{ .Values.WebApp.Name }}-sa"
   annotations:
     eks.amazonaws.com/role-arn: "{{ .Values.ServiceAccount.RoleARN }}"
 ---
