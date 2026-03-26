@@ -2,12 +2,6 @@
 {{ .Values.WebApp.Name }}.{{ .Values.WebApp.BaseHost }}
 {{- end -}}
 
-
-
-{{- define "hostname" -}}
-{{ .Values.WebApp.Name }}.{{ .Values.WebApp.BaseHost }}
-{{- end -}}
-
 {{- define "stripPrefixSuffix" -}}
 {{- $name := .Values.WebApp.Name -}}
 
