@@ -7,10 +7,6 @@
 
 {{- if hasSuffix "-prod" $name -}}
   {{- $name = trimSuffix "-prod" $name -}}
-{{- else }}
-  {{- if hasPrefix "track-my-case-" $name -}}
-    {{- $name = printf "track-a-case-%s" (trimPrefix "track-my-case-" $name) -}}
-  {{- end -}}
 {{- end -}}
 
 {{- printf "%s.%s" $name .Values.WebApp.BaseHost -}}
@@ -22,10 +18,6 @@
 
 {{- if hasSuffix "-prod" $name -}}
   {{- $name = trimSuffix "-prod" $name -}}
-{{- else }}
-  {{- if hasPrefix "track-my-case-" $name -}}
-    {{- $name = printf "track-a-case-%s" (trimPrefix "track-my-case-" $name) -}}
-  {{- end -}}
 {{- end -}}
 
 {{- printf "%s" $name  -}}
