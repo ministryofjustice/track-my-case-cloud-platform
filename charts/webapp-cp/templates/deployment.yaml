@@ -19,7 +19,7 @@ spec:
         app: {{ .Values.WebApp.Name }}
         host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "." }}
     spec:
-      serviceAccountName: {{ .Values.WebApp.Name }}-sa
+      serviceAccountName: {{ .Values.WebApp.Name }}-irsa
       securityContext:
         runAsNonRoot: true
         seccompProfile:
