@@ -20,7 +20,7 @@ spec:
         host: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "." }}
       {{- if .Values.WebApp.variables_hash }}
       annotations:
-        variables_hash: .Values.WebApp.variables_hash
+        variables_hash: {{ .Values.WebApp.variables_hash }}
       {{- end }}
     spec:
       serviceAccountName: {{ .Values.WebApp.Name }}-irsa
