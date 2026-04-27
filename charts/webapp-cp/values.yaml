@@ -12,6 +12,7 @@ WebApp:
   Name: ""
   BaseHost: "apps.live.cloud-platform.service.justice.gov.uk"
   containerPort: 9999
+  variables_hash: ""
   HealthCheck:
     readinessProbe:
       path: "/?healthz"
