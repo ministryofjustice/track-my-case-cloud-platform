@@ -4,7 +4,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
   labels:
-    {{- include "stripPrefixSuffix" . | trunc 63 | trimSuffix "." | nindent 4 }}
+    app: {{- include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
