@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
+  name: {{ .Values.WebApp.Name }}
   labels:
-    app: {{- include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
+    app: {{ .Values.WebApp.Name }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "stripPrefixSuffix" . | trunc 63 | trimSuffix "."}}
+    name: {{ .Values.WebApp.Name }}
   minReplicas: {{ .Values.autoscaling.minReplicas | default 1 }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas | default 5 }}
   metrics:
