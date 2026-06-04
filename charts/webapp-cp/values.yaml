@@ -1,6 +1,6 @@
 ReplicaCount: 1
 GithubRepo: ""
-GithubTeam: ""
+GithubTeam: "stg-victims-pathfinder"
 Namespace: ""
 Alerts:
   enabled: false
@@ -71,6 +71,8 @@ Ingress:
     - /
   ModSec:
     Enabled: false
+    DetectionOnly: false 
+    Class: "modsec-non-prod"
   Headers:
     SameOrigin: false
   ExtraAnnotations: {}

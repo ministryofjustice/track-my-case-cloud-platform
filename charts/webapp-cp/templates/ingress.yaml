@@ -7,7 +7,12 @@ metadata:
   {{ if .Values.Ingress.ModSec.Enabled }}
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
+  {{- if .Values.Ingress.ModSec.DetectionOnly }}
+      SecAuditEngine On
+      SecRuleEngine DetectionOnly
+  {{- else }}
       SecRuleEngine On
+  {{- end }}
       SecDefaultAction "phase:2,pass,log{{ if .Values.GithubTeam }},tag:github_team={{ .Values.GithubTeam }}{{ end }}"
   {{ end }}
     nginx.ingress.kubernetes.io/affinity: "cookie"
@@ -24,7 +29,7 @@ metadata:
   {{- end }}
 spec:
   {{ if .Values.Ingress.ModSec.Enabled }}
-  ingressClassName: modsec
+  ingressClassName: {{ .Values.Ingress.ModSec.Class }}
   {{ else }}
   ingressClassName: default
   {{ end }}
