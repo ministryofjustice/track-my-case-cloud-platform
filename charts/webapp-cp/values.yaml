@@ -72,7 +72,7 @@ Ingress:
   ModSec:
     Enabled: false
     DetectionOnly: false 
-    Class: modsec-non-prod
+    Class: "modsec-non-prod"
   Headers:
     SameOrigin: false
   ExtraAnnotations: {}
