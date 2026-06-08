@@ -4,6 +4,24 @@ kind: Ingress
 metadata:
   name: {{ template "stripPrefixSuffixFromName" . }}
   annotations:
+  {{- with .Values.Ingress.rateLimit }}
+    nginx.ingress.kubernetes.io/limit-req-status-code: "429"
+  {{- if .rps }}
+    nginx.ingress.kubernetes.io/limit-rps: {{ .rps | quote }}
+  {{- end }}
+  {{- if .rpm }}
+    nginx.ingress.kubernetes.io/limit-rpm: {{ .rpm | quote }}
+  {{- end }}
+  {{- if .connections }}
+    nginx.ingress.kubernetes.io/limit-connections: {{ .connections | quote }}
+  {{- end }}
+  {{- if .multiplier }}
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: {{ .multiplier | quote }}
+  {{- end }}
+  {{- if .whitelist }}
+    nginx.ingress.kubernetes.io/limit-whitelist: {{ .whitelist | quote }}
+  {{- end }}
+  {{- end }}
   {{ if .Values.Ingress.ModSec.Enabled }}
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/modsecurity-snippet: |

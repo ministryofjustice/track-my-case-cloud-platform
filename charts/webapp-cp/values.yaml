@@ -67,6 +67,10 @@ autoscaling:
 Ingress:
   Enabled: false
   Port: 80
+  rateLimit:
+    rps: 20
+    connections: 10
+    multiplier: 3
   Paths:
     - /
   ModSec:
