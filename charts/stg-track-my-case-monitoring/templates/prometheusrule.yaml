@@ -114,3 +114,12 @@ spec:
           labels:
             severity: {{ .Values.alertLabels.severity }}
             job: {{ .Values.serviceName }}
+        - alert: HPAReachedMaxReplicas
+          annotations:
+            message: >-
+              Pod {{ "{{" }} $labels.pod {{ "}}" }} HPA usage is greater than 80%
+          expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="{{ .Values.namespace }}", pod=~"{{ .Values.serviceName }}-.*", container!=""}} == 4
+          for: 5m
+          labels:
+            severity: {{ .Values.alertLabels.severity }}
+            job: {{ .Values.serviceName }}
